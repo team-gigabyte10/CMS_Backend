@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body } = require('express-validator')
 
 // Validation rules for creating a unit
 const createUnitValidation = [
@@ -28,14 +28,14 @@ const createUnitValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
-    }),
-];
+      return true
+    })
+]
 
 // Validation rules for updating a unit
 const updateUnitValidation = [
@@ -67,22 +67,21 @@ const updateUnitValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('is_active')
     .optional()
     .isBoolean()
     .withMessage('is_active must be a boolean value')
-];
+]
 
 module.exports = {
   createUnitValidation,
   updateUnitValidation
-};
-
+}

@@ -1,4 +1,4 @@
-const { body, param, query } = require('express-validator');
+const { body, param } = require('express-validator')
 
 // Login validation
 const validateLogin = [
@@ -9,7 +9,7 @@ const validateLogin = [
   body('password')
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
-];
+]
 
 // Registration validation
 const validateRegister = [
@@ -67,7 +67,7 @@ const validateRegister = [
     .trim()
     .isLength({ max: 20 })
     .withMessage('Alternative mobile must be less than 20 characters')
-];
+]
 
 // Profile update validation
 const validateProfileUpdate = [
@@ -122,7 +122,7 @@ const validateProfileUpdate = [
     .trim()
     .isLength({ max: 500 })
     .withMessage('Avatar URL must be less than 500 characters')
-];
+]
 
 // Change password validation
 const validateChangePassword = [
@@ -134,21 +134,21 @@ const validateChangePassword = [
     .withMessage('New password must be at least 6 characters long')
     .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/)
     .withMessage('New password must contain at least one lowercase letter, one uppercase letter, and one number')
-];
+]
 
 // Refresh token validation
 const validateRefreshToken = [
   body('refreshToken')
     .notEmpty()
     .withMessage('Refresh token is required')
-];
+]
 
 // ID parameter validation
 const validateId = [
   param('id')
     .isInt({ min: 1 })
     .withMessage('ID must be a positive integer')
-];
+]
 
 module.exports = {
   validateLogin,
@@ -157,4 +157,4 @@ module.exports = {
   validateChangePassword,
   validateRefreshToken,
   validateId
-};
+}

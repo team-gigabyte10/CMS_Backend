@@ -1,9 +1,9 @@
-const { validationResult } = require('express-validator');
-const Unit = require('../models/Unit');
+const { validationResult } = require('express-validator')
+const Unit = require('../models/Unit')
 
 class UnitController {
   // Get all units
-  static async getAllUnits(req, res, next) {
+  static async getAllUnits (req, res, next) {
     try {
       const {
         page = 1,
@@ -12,7 +12,7 @@ class UnitController {
         parent_id = null,
         tree = 'false',
         include_inactive = 'false'
-      } = req.query;
+      } = req.query
 
       const options = {
         page: parseInt(page),
@@ -20,16 +20,16 @@ class UnitController {
         search,
         parent_id,
         include_inactive: include_inactive === 'true'
-      };
-
-      let units;
-      if (tree === 'true') {
-        units = await Unit.getUnitTree(options);
-      } else {
-        units = await Unit.findAll(options);
       }
 
-      const statistics = await Unit.getStatistics();
+      let units
+      if (tree === 'true') {
+        units = await Unit.getUnitTree(options)
+      } else {
+        units = await Unit.findAll(options)
+      }
+
+      const statistics = await Unit.getStatistics()
 
       res.status(200).json({
         status: 'success',
@@ -49,23 +49,23 @@ class UnitController {
             include_inactive: include_inactive === 'true'
           }
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get unit by ID
-  static async getUnitById(req, res, next) {
+  static async getUnitById (req, res, next) {
     try {
-      const { id } = req.params;
-      const unit = await Unit.findById(id);
+      const { id } = req.params
+      const unit = await Unit.findById(id)
 
       if (!unit) {
         return res.status(404).json({
           status: 'error',
           message: 'Unit not found'
-        });
+        })
       }
 
       res.status(200).json({
@@ -74,44 +74,44 @@ class UnitController {
         data: {
           unit: unit.toJSON()
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Create new unit
-  static async createUnit(req, res, next) {
+  static async createUnit (req, res, next) {
     try {
-      const errors = validationResult(req);
+      const errors = validationResult(req)
       if (!errors.isEmpty()) {
         return res.status(400).json({
           status: 'error',
           message: 'Validation failed',
           errors: errors.array()
-        });
+        })
       }
 
-      const { name, code, description, parent_id } = req.body;
-      const created_by = req.user ? req.user.id : 1; // Default to user ID 1 for testing
+      const { name, code, description, parent_id } = req.body
+      const created_by = req.user ? req.user.id : 1 // Default to user ID 1 for testing
 
       // Check if code already exists
-      const codeExists = await Unit.codeExists(code);
+      const codeExists = await Unit.codeExists(code)
       if (codeExists) {
         return res.status(400).json({
           status: 'error',
           message: 'Unit code already exists'
-        });
+        })
       }
 
       // If parent_id is provided, verify it exists
       if (parent_id && parent_id !== null && parent_id !== '') {
-        const parentUnit = await Unit.findById(parent_id);
+        const parentUnit = await Unit.findById(parent_id)
         if (!parentUnit) {
           return res.status(400).json({
             status: 'error',
             message: 'Parent unit not found'
-          });
+          })
         }
       }
 
@@ -122,11 +122,11 @@ class UnitController {
         description: description || null,
         parent_id: parent_id || null,
         created_by
-      };
+      }
 
-      const unitId = await Unit.create(unitData);
+      const unitId = await Unit.create(unitData)
 
-      const newUnit = await Unit.findById(unitId);
+      const newUnit = await Unit.findById(unitId)
 
       res.status(201).json({
         status: 'success',
@@ -134,44 +134,44 @@ class UnitController {
         data: {
           unit: newUnit.toJSON()
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Update unit
-  static async updateUnit(req, res, next) {
+  static async updateUnit (req, res, next) {
     try {
-      const errors = validationResult(req);
+      const errors = validationResult(req)
       if (!errors.isEmpty()) {
         return res.status(400).json({
           status: 'error',
           message: 'Validation failed',
           errors: errors.array()
-        });
+        })
       }
 
-      const { id } = req.params;
-      const updateData = req.body;
+      const { id } = req.params
+      const updateData = req.body
 
       // Check if unit exists
-      const unit = await Unit.findById(id);
+      const unit = await Unit.findById(id)
       if (!unit) {
         return res.status(404).json({
           status: 'error',
           message: 'Unit not found'
-        });
+        })
       }
 
       // If code is being updated, check if it already exists
       if (updateData.code && updateData.code !== unit.code) {
-        const codeExists = await Unit.codeExists(updateData.code, id);
+        const codeExists = await Unit.codeExists(updateData.code, id)
         if (codeExists) {
           return res.status(400).json({
             status: 'error',
             message: 'Unit code already exists'
-          });
+          })
         }
       }
 
@@ -181,28 +181,28 @@ class UnitController {
           return res.status(400).json({
             status: 'error',
             message: 'Unit cannot be its own parent'
-          });
+          })
         }
 
-        const parentUnit = await Unit.findById(updateData.parent_id);
+        const parentUnit = await Unit.findById(updateData.parent_id)
         if (!parentUnit) {
           return res.status(400).json({
             status: 'error',
             message: 'Parent unit not found'
-          });
+          })
         }
       }
 
-      const updated = await Unit.update(id, updateData);
+      const updated = await Unit.update(id, updateData)
 
       if (!updated) {
         return res.status(404).json({
           status: 'error',
           message: 'Unit not found or no changes made'
-        });
+        })
       }
 
-      const updatedUnit = await Unit.findById(id);
+      const updatedUnit = await Unit.findById(id)
 
       res.status(200).json({
         status: 'success',
@@ -210,47 +210,47 @@ class UnitController {
         data: {
           unit: updatedUnit.toJSON()
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Delete unit
-  static async deleteUnit(req, res, next) {
+  static async deleteUnit (req, res, next) {
     try {
-      const { id } = req.params;
+      const { id } = req.params
 
-      const deleted = await Unit.delete(id);
+      const deleted = await Unit.delete(id)
 
       if (!deleted) {
         return res.status(404).json({
           status: 'error',
           message: 'Unit not found'
-        });
+        })
       }
 
       res.status(200).json({
         status: 'success',
         message: 'Unit deleted successfully'
-      });
+      })
     } catch (error) {
       if (error.message.includes('Cannot delete')) {
         return res.status(400).json({
           status: 'error',
           message: error.message
-        });
+        })
       }
-      next(error);
+      next(error)
     }
   }
 
   // Get unit children
-  static async getUnitChildren(req, res, next) {
+  static async getUnitChildren (req, res, next) {
     try {
-      const { id } = req.params;
+      const { id } = req.params
 
-      const children = await Unit.getChildren(id);
+      const children = await Unit.getChildren(id)
 
       res.status(200).json({
         status: 'success',
@@ -260,16 +260,16 @@ class UnitController {
           children: children.map(child => child.toJSON()),
           total: children.length
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get unit statistics
-  static async getUnitStatistics(req, res, next) {
+  static async getUnitStatistics (req, res, next) {
     try {
-      const statistics = await Unit.getStatistics();
+      const statistics = await Unit.getStatistics()
 
       res.status(200).json({
         status: 'success',
@@ -277,12 +277,11 @@ class UnitController {
         data: {
           statistics
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 }
 
-module.exports = UnitController;
-
+module.exports = UnitController

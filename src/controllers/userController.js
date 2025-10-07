@@ -1,93 +1,93 @@
-const { validationResult } = require('express-validator');
-const bcrypt = require('bcryptjs');
-const User = require('../models/User');
-const Unit = require('../models/Unit');
-const Department = require('../models/Department');
+const { validationResult } = require('express-validator')
+const bcrypt = require('bcryptjs')
+const User = require('../models/User')
+const Unit = require('../models/Unit')
+const Department = require('../models/Department')
 
 class UserController {
   // Create new user
-  static async createUser(req, res, next) {
+  static async createUser (req, res, next) {
     try {
-      const errors = validationResult(req);
+      const errors = validationResult(req)
       if (!errors.isEmpty()) {
         return res.status(400).json({
           status: 'error',
           message: 'Validation failed',
           errors: errors.array()
-        });
+        })
       }
 
       const {
         name, rank_id, service_no, unit_id, department_id,
         designation_id, phone, mobile, alternative_mobile,
         email, parent_id, role_id, password
-      } = req.body;
+      } = req.body
 
       // Verify unit exists
-      const unit = await Unit.findById(unit_id);
+      const unit = await Unit.findById(unit_id)
       if (!unit) {
         return res.status(400).json({
           status: 'error',
           message: 'Unit not found'
-        });
+        })
       }
 
       // Verify department exists if provided
       if (department_id) {
-        const department = await Department.findById(department_id);
+        const department = await Department.findById(department_id)
         if (!department) {
           return res.status(400).json({
             status: 'error',
             message: 'Department not found'
-          });
+          })
         }
         // Verify department belongs to the unit
         if (department.unit_id !== parseInt(unit_id)) {
           return res.status(400).json({
             status: 'error',
             message: 'Department does not belong to the specified unit'
-          });
+          })
         }
       }
 
       // Verify parent user exists if provided
       if (parent_id) {
-        const parentUser = await User.findById(parent_id);
+        const parentUser = await User.findById(parent_id)
         if (!parentUser) {
           return res.status(400).json({
             status: 'error',
             message: 'Parent user not found'
-          });
+          })
         }
         // Verify parent is in the same unit
         if (parentUser.unit_id !== parseInt(unit_id)) {
           return res.status(400).json({
             status: 'error',
             message: 'Parent user must be in the same unit'
-          });
+          })
         }
       }
 
       // Check for duplicate service_no
-      const existingUser = await User.findByServiceNo(service_no);
+      const existingUser = await User.findByServiceNo(service_no)
       if (existingUser) {
         return res.status(400).json({
           status: 'error',
           message: 'Service number already exists'
-        });
+        })
       }
 
       // Check for duplicate email
-      const existingEmail = await User.findByEmail(email);
+      const existingEmail = await User.findByEmail(email)
       if (existingEmail) {
         return res.status(400).json({
           status: 'error',
           message: 'Email already exists'
-        });
+        })
       }
 
       // Hash password
-      const password_hash = await bcrypt.hash(password || 'password123', 12);
+      const password_hash = await bcrypt.hash(password || 'password123', 12)
 
       const userId = await User.create({
         name,
@@ -104,9 +104,9 @@ class UserController {
         role_id: role_id || 3,
         password_hash,
         status: 'offline'
-      });
+      })
 
-      const newUser = await User.findById(userId);
+      const newUser = await User.findById(userId)
 
       res.status(201).json({
         status: 'success',
@@ -130,14 +130,14 @@ class UserController {
             created_at: newUser.created_at
           }
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get all users with filtering
-  static async getAllUsers(req, res, next) {
+  static async getAllUsers (req, res, _next) {
     try {
       const {
         page = 1,
@@ -148,7 +148,7 @@ class UserController {
         role_id = '',
         parent_id = null,
         include_inactive = 'false'
-      } = req.query;
+      } = req.query
 
       const options = {
         page: parseInt(page),
@@ -159,10 +159,10 @@ class UserController {
         role_id,
         parent_id,
         include_inactive: include_inactive === 'true'
-      };
+      }
 
-      const users = await User.findAll(options);
-      const statistics = await User.getStatistics();
+      const users = await User.findAll(options)
+      const statistics = await User.getStatistics()
 
       res.status(200).json({
         status: 'success',
@@ -196,28 +196,28 @@ class UserController {
             include_inactive: include_inactive === 'true'
           }
         }
-      });
+      })
     } catch (error) {
-      console.error('Error in getAllUsers:', error);
+      console.error('Error in getAllUsers:', error)
       return res.status(500).json({
         status: 'error',
         message: 'Error retrieving users',
         error: error.message
-      });
+      })
     }
   }
 
   // Get user by ID
-  static async getUserById(req, res, next) {
+  static async getUserById (req, res, next) {
     try {
-      const { id } = req.params;
-      const user = await User.findById(id);
+      const { id } = req.params
+      const user = await User.findById(id)
 
       if (!user) {
         return res.status(404).json({
           status: 'error',
           message: 'User not found'
-        });
+        })
       }
 
       res.status(200).json({
@@ -252,81 +252,81 @@ class UserController {
             updated_at: user.updated_at
           }
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Update user
-  static async updateUser(req, res, next) {
+  static async updateUser (req, res, next) {
     try {
-      const errors = validationResult(req);
+      const errors = validationResult(req)
       if (!errors.isEmpty()) {
         return res.status(400).json({
           status: 'error',
           message: 'Validation failed',
           errors: errors.array()
-        });
+        })
       }
 
-      const { id } = req.params;
-      const updateData = req.body;
+      const { id } = req.params
+      const updateData = req.body
 
       // Check if user exists
-      const user = await User.findById(id);
+      const user = await User.findById(id)
       if (!user) {
         return res.status(404).json({
           status: 'error',
           message: 'User not found'
-        });
+        })
       }
 
       // If unit_id is being updated, verify it exists
       if (updateData.unit_id) {
-        const unit = await Unit.findById(updateData.unit_id);
+        const unit = await Unit.findById(updateData.unit_id)
         if (!unit) {
           return res.status(400).json({
             status: 'error',
             message: 'Unit not found'
-          });
+          })
         }
       }
 
       // If department_id is being updated, verify it exists and belongs to unit
       if (updateData.department_id) {
-        const department = await Department.findById(updateData.department_id);
+        const department = await Department.findById(updateData.department_id)
         if (!department) {
           return res.status(400).json({
             status: 'error',
             message: 'Department not found'
-          });
+          })
         }
-        const targetUnitId = updateData.unit_id || user.unit_id;
+        const targetUnitId = updateData.unit_id || user.unit_id
         if (department.unit_id !== parseInt(targetUnitId)) {
           return res.status(400).json({
             status: 'error',
             message: 'Department does not belong to the specified unit'
-          });
+          })
         }
       }
 
       // If password is being updated, hash it
       if (updateData.password) {
-        updateData.password_hash = await bcrypt.hash(updateData.password, 12);
-        delete updateData.password;
+        updateData.password_hash = await bcrypt.hash(updateData.password, 12)
+        delete updateData.password
       }
 
-      const updated = await User.update(id, updateData);
+      const updated = await User.update(id, updateData)
 
       if (!updated) {
         return res.status(404).json({
           status: 'error',
           message: 'User not found or no changes made'
-        });
+        })
       }
 
-      const updatedUser = await User.findById(id);
+      const updatedUser = await User.findById(id)
 
       res.status(200).json({
         status: 'success',
@@ -343,48 +343,48 @@ class UserController {
             updated_at: updatedUser.updated_at
           }
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Delete user (soft delete)
-  static async deleteUser(req, res, next) {
+  static async deleteUser (req, res, next) {
     try {
-      const { id } = req.params;
+      const { id } = req.params
 
       // Check if user has children
-      const children = await User.findByParentId(id);
+      const children = await User.findByParentId(id)
       if (children.length > 0) {
         return res.status(400).json({
           status: 'error',
           message: 'Cannot delete user with subordinates. Please reassign or delete subordinates first.'
-        });
+        })
       }
 
-      const deleted = await User.delete(id);
+      const deleted = await User.delete(id)
 
       if (!deleted) {
         return res.status(404).json({
           status: 'error',
           message: 'User not found'
-        });
+        })
       }
 
       res.status(200).json({
         status: 'success',
         message: 'User deleted successfully'
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get user statistics
-  static async getUserStatistics(req, res, next) {
+  static async getUserStatistics (req, res, next) {
     try {
-      const statistics = await User.getStatistics();
+      const statistics = await User.getStatistics()
 
       res.status(200).json({
         status: 'success',
@@ -392,12 +392,11 @@ class UserController {
         data: {
           statistics
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 }
 
-module.exports = UserController;
-
+module.exports = UserController

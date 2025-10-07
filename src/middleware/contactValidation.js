@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body } = require('express-validator')
 
 // Validation rules for creating a contact
 const createContactValidation = [
@@ -13,12 +13,12 @@ const createContactValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Rank ID must be a positive integer');
+        throw new Error('Rank ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('service_no')
@@ -59,45 +59,45 @@ const createContactValidation = [
     .optional()
     .custom((value) => {
       if (!value || value.trim() === '') {
-        return true; // Allow empty or null values
+        return true // Allow empty or null values
       }
       if (value.length > 20) {
-        throw new Error('Phone number must not exceed 20 characters');
+        throw new Error('Phone number must not exceed 20 characters')
       }
       if (!/^[\+]?[0-9\s\-\(\)]+$/.test(value)) {
-        throw new Error('Phone number contains invalid characters');
+        throw new Error('Phone number contains invalid characters')
       }
-      return true;
+      return true
     }),
 
   body('mobile')
     .optional()
     .custom((value) => {
       if (!value || value.trim() === '') {
-        return true; // Allow empty or null values
+        return true // Allow empty or null values
       }
       if (value.length > 20) {
-        throw new Error('Mobile number must not exceed 20 characters');
+        throw new Error('Mobile number must not exceed 20 characters')
       }
       if (!/^[\+]?[0-9\s\-\(\)]+$/.test(value)) {
-        throw new Error('Mobile number contains invalid characters');
+        throw new Error('Mobile number contains invalid characters')
       }
-      return true;
+      return true
     }),
 
   body('alternative_mobile')
     .optional()
     .custom((value) => {
       if (!value || value.trim() === '') {
-        return true; // Allow empty or null values
+        return true // Allow empty or null values
       }
       if (value.length > 20) {
-        throw new Error('Alternative mobile number must not exceed 20 characters');
+        throw new Error('Alternative mobile number must not exceed 20 characters')
       }
       if (!/^[\+]?[0-9\s\-\(\)]+$/.test(value)) {
-        throw new Error('Alternative mobile number contains invalid characters');
+        throw new Error('Alternative mobile number contains invalid characters')
       }
-      return true;
+      return true
     }),
 
   body('email')
@@ -120,14 +120,14 @@ const createContactValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     })
-];
+]
 
 // Validation rules for updating a contact
 const updateContactValidation = [
@@ -143,12 +143,12 @@ const updateContactValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Rank ID must be a positive integer');
+        throw new Error('Rank ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('service_no')
@@ -176,12 +176,12 @@ const updateContactValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Department ID must be a positive integer');
+        throw new Error('Department ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('designation_id')
@@ -193,45 +193,45 @@ const updateContactValidation = [
     .optional()
     .custom((value) => {
       if (!value || value.trim() === '') {
-        return true; // Allow empty or null values
+        return true // Allow empty or null values
       }
       if (value.length > 20) {
-        throw new Error('Phone number must not exceed 20 characters');
+        throw new Error('Phone number must not exceed 20 characters')
       }
       if (!/^[\+]?[0-9\s\-\(\)]+$/.test(value)) {
-        throw new Error('Phone number contains invalid characters');
+        throw new Error('Phone number contains invalid characters')
       }
-      return true;
+      return true
     }),
 
   body('mobile')
     .optional()
     .custom((value) => {
       if (!value || value.trim() === '') {
-        return true; // Allow empty or null values
+        return true // Allow empty or null values
       }
       if (value.length > 20) {
-        throw new Error('Mobile number must not exceed 20 characters');
+        throw new Error('Mobile number must not exceed 20 characters')
       }
       if (!/^[\+]?[0-9\s\-\(\)]+$/.test(value)) {
-        throw new Error('Mobile number contains invalid characters');
+        throw new Error('Mobile number contains invalid characters')
       }
-      return true;
+      return true
     }),
 
   body('alternative_mobile')
     .optional()
     .custom((value) => {
       if (!value || value.trim() === '') {
-        return true; // Allow empty or null values
+        return true // Allow empty or null values
       }
       if (value.length > 20) {
-        throw new Error('Alternative mobile number must not exceed 20 characters');
+        throw new Error('Alternative mobile number must not exceed 20 characters')
       }
       if (!/^[\+]?[0-9\s\-\(\)]+$/.test(value)) {
-        throw new Error('Alternative mobile number contains invalid characters');
+        throw new Error('Alternative mobile number contains invalid characters')
       }
-      return true;
+      return true
     }),
 
   body('email')
@@ -252,12 +252,12 @@ const updateContactValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('is_active')
@@ -269,9 +269,9 @@ const updateContactValidation = [
     .optional()
     .isIn(['online', 'offline', 'busy'])
     .withMessage('Status must be online, offline, or busy')
-];
+]
 
 module.exports = {
   createContactValidation,
   updateContactValidation
-};
+}

@@ -1,4 +1,4 @@
-const { body, param, query } = require('express-validator');
+const { body, param, query } = require('express-validator')
 
 // Rank validation
 const validateRank = [
@@ -19,7 +19,7 @@ const validateRank = [
     .optional()
     .isBoolean()
     .withMessage('is_active must be a boolean value')
-];
+]
 
 // Rank update validation
 const validateRankUpdate = [
@@ -41,14 +41,14 @@ const validateRankUpdate = [
     .optional()
     .isBoolean()
     .withMessage('is_active must be a boolean value')
-];
+]
 
 // ID parameter validation
 const validateId = [
   param('id')
     .isInt({ min: 1 })
     .withMessage('ID must be a positive integer')
-];
+]
 
 // Query validation for get all ranks
 const validateRankQuery = [
@@ -65,11 +65,11 @@ const validateRankQuery = [
     .optional()
     .isIn(['true', 'false', ''])
     .withMessage('is_active must be true, false, or empty')
-];
+]
 
 module.exports = {
   validateRank,
   validateRankUpdate,
   validateId,
   validateRankQuery
-};
+}

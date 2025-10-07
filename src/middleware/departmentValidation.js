@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body } = require('express-validator')
 
 // Validation rules for creating a department
 const createDepartmentValidation = [
@@ -19,12 +19,12 @@ const createDepartmentValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('description')
@@ -32,7 +32,7 @@ const createDepartmentValidation = [
     .trim()
     .isLength({ max: 500 })
     .withMessage('Description must not exceed 500 characters')
-];
+]
 
 // Validation rules for updating a department
 const updateDepartmentValidation = [
@@ -48,24 +48,24 @@ const updateDepartmentValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Unit ID must be a positive integer');
+        throw new Error('Unit ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('parent_id')
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('description')
@@ -78,10 +78,9 @@ const updateDepartmentValidation = [
     .optional()
     .isBoolean()
     .withMessage('is_active must be a boolean value')
-];
+]
 
 module.exports = {
   createDepartmentValidation,
   updateDepartmentValidation
-};
-
+}

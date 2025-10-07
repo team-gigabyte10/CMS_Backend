@@ -1,9 +1,8 @@
-const Contact = require('../models/Contact');
-const User = require('../models/User');
+const Contact = require('../models/Contact')
 
 class ContactTreeController {
   // Get comprehensive contact tree with enhanced display options
-  static async getEnhancedContactTree(req, res, next) {
+  static async getEnhancedContactTree (req, res, next) {
     try {
       const {
         search = '',
@@ -13,33 +12,33 @@ class ContactTreeController {
         role_filter = '',
         show_hierarchy = 'true',
         include_inactive = 'false'
-      } = req.query;
+      } = req.query
 
       const options = {
         search,
         contact_type,
         unit_id,
         branch_id
-      };
+      }
 
       // Get contact tree
-      let contactTree = await Contact.getContactTree(options);
+      let contactTree = await Contact.getContactTree(options)
 
       // Apply role filtering
       if (role_filter && role_filter !== 'all') {
-        contactTree = ContactTreeController.filterTreeByRole(contactTree, role_filter);
+        contactTree = ContactTreeController.filterTreeByRole(contactTree, role_filter)
       }
 
       // Apply hierarchy display options
       if (show_hierarchy === 'false') {
-        contactTree = ContactTreeController.flattenTree(contactTree);
+        contactTree = ContactTreeController.flattenTree(contactTree)
       }
 
       // Get enhanced statistics
-      const statistics = await ContactTreeController.getEnhancedStatistics();
+      const statistics = await ContactTreeController.getEnhancedStatistics()
 
       // Format tree for display with additional information
-      const formattedTree = ContactTreeController.formatTreeForDisplay(contactTree);
+      const formattedTree = ContactTreeController.formatTreeForDisplay(contactTree)
 
       res.status(200).json({
         status: 'success',
@@ -57,41 +56,40 @@ class ContactTreeController {
             include_inactive: include_inactive === 'true'
           }
         }
-      });
-
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get contact tree for specific organizational unit
-  static async getContactTreeByUnit(req, res, next) {
+  static async getContactTreeByUnit (req, res, next) {
     try {
-      const { unitId } = req.params;
+      const { unitId } = req.params
       const {
         search = '',
         contact_type = '',
         branch_id = '',
         role_filter = ''
-      } = req.query;
+      } = req.query
 
       const options = {
         search,
         contact_type,
         unit_id: unitId,
         branch_id
-      };
+      }
 
       // Get contact tree for specific unit
-      let contactTree = await Contact.getContactTree(options);
+      let contactTree = await Contact.getContactTree(options)
 
       // Apply role filtering
       if (role_filter && role_filter !== 'all') {
-        contactTree = ContactTreeController.filterTreeByRole(contactTree, role_filter);
+        contactTree = ContactTreeController.filterTreeByRole(contactTree, role_filter)
       }
 
       // Get unit-specific statistics
-      const statistics = await ContactTreeController.getUnitStatistics(unitId);
+      const statistics = await ContactTreeController.getUnitStatistics(unitId)
 
       res.status(200).json({
         status: 'success',
@@ -101,39 +99,38 @@ class ContactTreeController {
           contactTree,
           statistics
         }
-      });
-
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get contact tree for specific branch
-  static async getContactTreeByBranch(req, res, next) {
+  static async getContactTreeByBranch (req, res, next) {
     try {
-      const { branchId } = req.params;
+      const { branchId } = req.params
       const {
         search = '',
         contact_type = '',
         role_filter = ''
-      } = req.query;
+      } = req.query
 
       const options = {
         search,
         contact_type,
         branch_id: branchId
-      };
+      }
 
       // Get contact tree for specific branch
-      let contactTree = await Contact.getContactTree(options);
+      let contactTree = await Contact.getContactTree(options)
 
       // Apply role filtering
       if (role_filter && role_filter !== 'all') {
-        contactTree = ContactTreeController.filterTreeByRole(contactTree, role_filter);
+        contactTree = ContactTreeController.filterTreeByRole(contactTree, role_filter)
       }
 
       // Get branch-specific statistics
-      const statistics = await ContactTreeController.getBranchStatistics(branchId);
+      const statistics = await ContactTreeController.getBranchStatistics(branchId)
 
       res.status(200).json({
         status: 'success',
@@ -143,17 +140,16 @@ class ContactTreeController {
           contactTree,
           statistics
         }
-      });
-
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get hierarchical structure with organizational details
-  static async getHierarchicalStructure(req, res, next) {
+  static async getHierarchicalStructure (req, res, next) {
     try {
-      const { pool } = require('../config/database');
+      const { pool } = require('../config/database')
 
       // Get organizational hierarchy
       const [units] = await pool.execute(`
@@ -166,7 +162,7 @@ class ContactTreeController {
         WHERE u.is_active = 1
         GROUP BY u.id
         ORDER BY u.name
-      `);
+      `)
 
       const [branches] = await pool.execute(`
         SELECT b.*, 
@@ -180,7 +176,7 @@ class ContactTreeController {
         WHERE b.is_active = 1
         GROUP BY b.id
         ORDER BY u.name, b.name
-      `);
+      `)
 
       const [subBranches] = await pool.execute(`
         SELECT sb.*, 
@@ -196,7 +192,7 @@ class ContactTreeController {
         WHERE sb.is_active = 1
         GROUP BY sb.id
         ORDER BY u.name, b.name, sb.name
-      `);
+      `)
 
       res.status(200).json({
         status: 'success',
@@ -206,30 +202,29 @@ class ContactTreeController {
           branches,
           subBranches
         }
-      });
-
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Search contacts across the tree
-  static async searchContactsInTree(req, res, next) {
+  static async searchContactsInTree (req, res, next) {
     try {
-      const { q: searchTerm } = req.query;
+      const { q: searchTerm } = req.query
       const {
         contact_type = '',
         unit_id = '',
         branch_id = '',
         role_filter = '',
         limit = 50
-      } = req.query;
+      } = req.query
 
       if (!searchTerm || searchTerm.trim().length < 2) {
         return res.status(400).json({
           status: 'error',
           message: 'Search term must be at least 2 characters long'
-        });
+        })
       }
 
       const options = {
@@ -238,33 +233,33 @@ class ContactTreeController {
         unit_id,
         branch_id,
         limit: parseInt(limit)
-      };
+      }
 
       // Search contacts
-      const contacts = await Contact.search(searchTerm.trim(), options);
+      const contacts = await Contact.search(searchTerm.trim(), options)
 
       // Apply role filtering
-      let filteredContacts = contacts;
+      let filteredContacts = contacts
       if (role_filter && role_filter !== 'all') {
         filteredContacts = contacts.filter(contact => {
           switch (role_filter) {
             case 'admin':
-              return contact.role_id === 2;
+              return contact.role_id === 2
             case 'user':
-              return contact.role_id === 3;
+              return contact.role_id === 3
             case 'super_admin':
-              return contact.role_id === 1;
+              return contact.role_id === 1
             default:
-              return true;
+              return true
           }
-        });
+        })
       }
 
       // Format results with hierarchy path
       const formattedResults = filteredContacts.map(contact => ({
         ...contact.toJSON(),
         hierarchy_path: ContactTreeController.getHierarchyPath(contact)
-      }));
+      }))
 
       res.status(200).json({
         status: 'success',
@@ -280,17 +275,16 @@ class ContactTreeController {
             role_filter
           }
         }
-      });
-
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get contact tree statistics
-  static async getContactTreeStatistics(req, res, next) {
+  static async getContactTreeStatistics (req, res, next) {
     try {
-      const statistics = await ContactTreeController.getEnhancedStatistics();
+      const statistics = await ContactTreeController.getEnhancedStatistics()
 
       res.status(200).json({
         status: 'success',
@@ -298,93 +292,93 @@ class ContactTreeController {
         data: {
           statistics
         }
-      });
-
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Helper method to filter tree by role
-  static filterTreeByRole(tree, roleFilter) {
+  static filterTreeByRole (tree, roleFilter) {
     const filterNode = (node) => {
       // Check if current node matches role filter
-      const matchesRole = roleFilter === 'all' || 
+      const matchesRole = roleFilter === 'all' ||
                         (roleFilter === 'admin' && node.role_id === 2) ||
                         (roleFilter === 'user' && node.role_id === 3) ||
-                        (roleFilter === 'super_admin' && node.role_id === 1);
+                        (roleFilter === 'super_admin' && node.role_id === 1)
 
       // Filter children recursively
-      const filteredChildren = node.children ? 
-        node.children.map(child => filterNode(child)).filter(child => child !== null) : [];
+      const filteredChildren = node.children
+        ? node.children.map(child => filterNode(child)).filter(child => child !== null)
+        : []
 
       // Return node if it matches role or has matching children
       if (matchesRole || filteredChildren.length > 0) {
         return {
           ...node,
           children: filteredChildren
-        };
+        }
       }
 
-      return null;
-    };
+      return null
+    }
 
-    return tree.map(node => filterNode(node)).filter(node => node !== null);
+    return tree.map(node => filterNode(node)).filter(node => node !== null)
   }
 
   // Helper method to flatten tree structure
-  static flattenTree(tree) {
-    const flattened = [];
-    
+  static flattenTree (tree) {
+    const flattened = []
+
     const flattenNode = (node, level = 0) => {
       flattened.push({
         ...node,
         level,
         children: undefined // Remove children for flat structure
-      });
-      
-      if (node.children) {
-        node.children.forEach(child => flattenNode(child, level + 1));
-      }
-    };
+      })
 
-    tree.forEach(node => flattenNode(node));
-    return flattened;
+      if (node.children) {
+        node.children.forEach(child => flattenNode(child, level + 1))
+      }
+    }
+
+    tree.forEach(node => flattenNode(node))
+    return flattened
   }
 
   // Helper method to format tree for display
-  static formatTreeForDisplay(tree) {
+  static formatTreeForDisplay (tree) {
     return tree.map(node => ({
       ...node.toJSON(),
       display_name: `${node.rank_name || ''} ${node.name}`.trim(),
       display_info: `${node.designation_name || ''} - ${node.service_no || ''}`.trim(),
       organizational_path: ContactTreeController.getOrganizationalPath(node),
       children: node.children ? ContactTreeController.formatTreeForDisplay(node.children) : []
-    }));
+    }))
   }
 
   // Helper method to get organizational path
-  static getOrganizationalPath(contact) {
-    const path = [];
-    if (contact.unit_name) path.push(contact.unit_name);
-    if (contact.branch_name) path.push(contact.branch_name);
-    if (contact.sub_branch_name) path.push(contact.sub_branch_name);
-    if (contact.department_name) path.push(contact.department_name);
-    return path.join(' > ');
+  static getOrganizationalPath (contact) {
+    const path = []
+    if (contact.unit_name) path.push(contact.unit_name)
+    if (contact.branch_name) path.push(contact.branch_name)
+    if (contact.sub_branch_name) path.push(contact.sub_branch_name)
+    if (contact.department_name) path.push(contact.department_name)
+    return path.join(' > ')
   }
 
   // Helper method to get hierarchy path
-  static getHierarchyPath(contact) {
-    const path = [];
-    if (contact.rank_name) path.push(contact.rank_name);
-    path.push(contact.name);
-    if (contact.designation_name) path.push(contact.designation_name);
-    return path.join(' - ');
+  static getHierarchyPath (contact) {
+    const path = []
+    if (contact.rank_name) path.push(contact.rank_name)
+    path.push(contact.name)
+    if (contact.designation_name) path.push(contact.designation_name)
+    return path.join(' - ')
   }
 
   // Helper method to get enhanced statistics
-  static async getEnhancedStatistics() {
-    const { pool } = require('../config/database');
+  static async getEnhancedStatistics () {
+    const { pool } = require('../config/database')
 
     const [stats] = await pool.execute(`
       SELECT 
@@ -400,14 +394,14 @@ class ContactTreeController {
         SUM(CASE WHEN status = 'offline' THEN 1 ELSE 0 END) as offline_users
       FROM users 
       WHERE is_active = 1
-    `);
+    `)
 
-    return stats[0];
+    return stats[0]
   }
 
   // Helper method to get unit statistics
-  static async getUnitStatistics(unitId) {
-    const { pool } = require('../config/database');
+  static async getUnitStatistics (unitId) {
+    const { pool } = require('../config/database')
 
     const [stats] = await pool.execute(`
       SELECT 
@@ -418,14 +412,14 @@ class ContactTreeController {
         SUM(CASE WHEN status = 'online' THEN 1 ELSE 0 END) as online_users
       FROM users 
       WHERE unit_id = ? AND is_active = 1
-    `, [unitId]);
+    `, [unitId])
 
-    return stats[0];
+    return stats[0]
   }
 
   // Helper method to get branch statistics
-  static async getBranchStatistics(branchId) {
-    const { pool } = require('../config/database');
+  static async getBranchStatistics (branchId) {
+    const { pool } = require('../config/database')
 
     const [stats] = await pool.execute(`
       SELECT 
@@ -436,10 +430,10 @@ class ContactTreeController {
         SUM(CASE WHEN status = 'online' THEN 1 ELSE 0 END) as online_users
       FROM users 
       WHERE branch_id = ? AND is_active = 1
-    `, [branchId]);
+    `, [branchId])
 
-    return stats[0];
+    return stats[0]
   }
 }
 
-module.exports = ContactTreeController;
+module.exports = ContactTreeController

@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body } = require('express-validator')
 
 // Validation rules for creating a designation
 const createDesignationValidation = [
@@ -19,12 +19,12 @@ const createDesignationValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('description')
@@ -32,7 +32,7 @@ const createDesignationValidation = [
     .trim()
     .isLength({ max: 500 })
     .withMessage('Description must not exceed 500 characters')
-];
+]
 
 // Validation rules for updating a designation
 const updateDesignationValidation = [
@@ -53,12 +53,12 @@ const updateDesignationValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('description')
@@ -71,9 +71,9 @@ const updateDesignationValidation = [
     .optional()
     .isBoolean()
     .withMessage('is_active must be a boolean value')
-];
+]
 
 module.exports = {
   createDesignationValidation,
   updateDesignationValidation
-};
+}

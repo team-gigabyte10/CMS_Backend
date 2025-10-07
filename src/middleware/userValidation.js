@@ -1,4 +1,4 @@
-const { body } = require('express-validator');
+const { body } = require('express-validator')
 
 // Validation rules for creating a user
 const createUserValidation = [
@@ -13,12 +13,12 @@ const createUserValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Rank ID must be a positive integer');
+        throw new Error('Rank ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('service_no')
@@ -38,12 +38,12 @@ const createUserValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Department ID must be a positive integer');
+        throw new Error('Department ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('designation_id')
@@ -90,12 +90,12 @@ const createUserValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('role_id')
@@ -107,7 +107,7 @@ const createUserValidation = [
     .optional()
     .isLength({ min: 6 })
     .withMessage('Password must be at least 6 characters long')
-];
+]
 
 // Validation rules for updating a user
 const updateUserValidation = [
@@ -123,12 +123,12 @@ const updateUserValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Rank ID must be a positive integer');
+        throw new Error('Rank ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('service_no')
@@ -146,12 +146,12 @@ const updateUserValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Department ID must be a positive integer');
+        throw new Error('Department ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('designation_id')
@@ -195,12 +195,12 @@ const updateUserValidation = [
     .optional()
     .custom((value) => {
       if (value === null || value === undefined || value === '') {
-        return true; // Allow null, undefined, or empty string
+        return true // Allow null, undefined, or empty string
       }
       if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-        throw new Error('Parent ID must be a positive integer');
+        throw new Error('Parent ID must be a positive integer')
       }
-      return true;
+      return true
     }),
 
   body('role_id')
@@ -222,9 +222,9 @@ const updateUserValidation = [
     .optional()
     .isIn(['online', 'offline', 'busy'])
     .withMessage('Status must be online, offline, or busy')
-];
+]
 
 module.exports = {
   createUserValidation,
   updateUserValidation
-};
+}

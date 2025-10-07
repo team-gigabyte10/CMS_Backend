@@ -1,10 +1,10 @@
-const { validationResult } = require('express-validator');
-const Department = require('../models/Department');
-const Unit = require('../models/Unit');
+const { validationResult } = require('express-validator')
+const Department = require('../models/Department')
+const Unit = require('../models/Unit')
 
 class DepartmentController {
   // Get all departments
-  static async getAllDepartments(req, res, next) {
+  static async getAllDepartments (req, res, next) {
     try {
       const {
         page = 1,
@@ -13,17 +13,17 @@ class DepartmentController {
         unit_id = '',
         include_inactive = 'false',
         group_by_unit = 'false'
-      } = req.query;
+      } = req.query
 
       if (group_by_unit === 'true') {
-        const departmentsByUnit = await Department.getDepartmentsByUnit();
+        const departmentsByUnit = await Department.getDepartmentsByUnit()
         return res.status(200).json({
           status: 'success',
           message: 'Departments grouped by unit retrieved successfully',
           data: {
             units: departmentsByUnit
           }
-        });
+        })
       }
 
       const options = {
@@ -32,10 +32,10 @@ class DepartmentController {
         search,
         unit_id,
         include_inactive: include_inactive === 'true'
-      };
+      }
 
-      const departments = await Department.findAll(options);
-      const statistics = await Department.getStatistics();
+      const departments = await Department.findAll(options)
+      const statistics = await Department.getStatistics()
 
       res.status(200).json({
         status: 'success',
@@ -54,23 +54,23 @@ class DepartmentController {
             include_inactive: include_inactive === 'true'
           }
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get department by ID
-  static async getDepartmentById(req, res, next) {
+  static async getDepartmentById (req, res, next) {
     try {
-      const { id } = req.params;
-      const department = await Department.findById(id);
+      const { id } = req.params
+      const department = await Department.findById(id)
 
       if (!department) {
         return res.status(404).json({
           status: 'error',
           message: 'Department not found'
-        });
+        })
       }
 
       res.status(200).json({
@@ -79,27 +79,27 @@ class DepartmentController {
         data: {
           department: department.toJSON()
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get departments by unit
-  static async getDepartmentsByUnit(req, res, next) {
+  static async getDepartmentsByUnit (req, res, next) {
     try {
-      const { unitId } = req.params;
+      const { unitId } = req.params
 
       // Verify unit exists
-      const unit = await Unit.findById(unitId);
+      const unit = await Unit.findById(unitId)
       if (!unit) {
         return res.status(404).json({
           status: 'error',
           message: 'Unit not found'
-        });
+        })
       }
 
-      const departments = await Department.findByUnit(unitId);
+      const departments = await Department.findByUnit(unitId)
 
       res.status(200).json({
         status: 'success',
@@ -113,43 +113,43 @@ class DepartmentController {
           departments: departments.map(dept => dept.toJSON()),
           total: departments.length
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Create new department
-  static async createDepartment(req, res, next) {
+  static async createDepartment (req, res, next) {
     try {
-      const errors = validationResult(req);
+      const errors = validationResult(req)
       if (!errors.isEmpty()) {
         return res.status(400).json({
           status: 'error',
           message: 'Validation failed',
           errors: errors.array()
-        });
+        })
       }
 
-      const { name, unit_id, parent_id, description } = req.body;
+      const { name, unit_id, parent_id, description } = req.body
 
       // Verify unit exists
-      const unit = await Unit.findById(unit_id);
+      const unit = await Unit.findById(unit_id)
       if (!unit) {
         return res.status(400).json({
           status: 'error',
           message: 'Unit not found'
-        });
+        })
       }
 
       // Verify parent department exists (if provided)
       if (parent_id) {
-        const parentDepartment = await Department.findById(parent_id);
+        const parentDepartment = await Department.findById(parent_id)
         if (!parentDepartment) {
           return res.status(400).json({
             status: 'error',
             message: 'Parent department not found'
-          });
+          })
         }
 
         // Check if parent department is in the same unit
@@ -157,17 +157,17 @@ class DepartmentController {
           return res.status(400).json({
             status: 'error',
             message: 'Parent department must be in the same unit'
-          });
+          })
         }
       }
 
       // Check if department name already exists in this unit
-      const nameExists = await Department.nameExistsInUnit(name, unit_id);
+      const nameExists = await Department.nameExistsInUnit(name, unit_id)
       if (nameExists) {
         return res.status(400).json({
           status: 'error',
           message: 'Department name already exists in this unit'
-        });
+        })
       }
 
       const departmentId = await Department.create({
@@ -175,9 +175,9 @@ class DepartmentController {
         unit_id,
         parent_id,
         description
-      });
+      })
 
-      const newDepartment = await Department.findById(departmentId);
+      const newDepartment = await Department.findById(departmentId)
 
       res.status(201).json({
         status: 'success',
@@ -185,102 +185,102 @@ class DepartmentController {
         data: {
           department: newDepartment.toJSON()
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Update department
-  static async updateDepartment(req, res, next) {
+  static async updateDepartment (req, res, next) {
     try {
-      const errors = validationResult(req);
+      const errors = validationResult(req)
       if (!errors.isEmpty()) {
         return res.status(400).json({
           status: 'error',
           message: 'Validation failed',
           errors: errors.array()
-        });
+        })
       }
 
-      const { id } = req.params;
-      const updateData = req.body;
+      const { id } = req.params
+      const updateData = req.body
 
       // Check if department exists
-      const department = await Department.findById(id);
+      const department = await Department.findById(id)
       if (!department) {
         return res.status(404).json({
           status: 'error',
           message: 'Department not found'
-        });
+        })
       }
 
       // If unit_id is being updated, verify it exists
       if (updateData.unit_id) {
-        const unit = await Unit.findById(updateData.unit_id);
+        const unit = await Unit.findById(updateData.unit_id)
         if (!unit) {
           return res.status(400).json({
             status: 'error',
             message: 'Unit not found'
-          });
+          })
         }
       }
 
       // If parent_id is being updated, verify it exists and is valid
       if (updateData.parent_id !== undefined) {
         if (updateData.parent_id) {
-          const parentDepartment = await Department.findById(updateData.parent_id);
+          const parentDepartment = await Department.findById(updateData.parent_id)
           if (!parentDepartment) {
             return res.status(400).json({
               status: 'error',
               message: 'Parent department not found'
-            });
+            })
           }
 
           // Check if parent department is in the same unit
-          const targetUnitId = updateData.unit_id || department.unit_id;
+          const targetUnitId = updateData.unit_id || department.unit_id
           if (parentDepartment.unit_id !== targetUnitId) {
             return res.status(400).json({
               status: 'error',
               message: 'Parent department must be in the same unit'
-            });
+            })
           }
 
           // Check for circular references
-          const canBeParent = await Department.canBeParent(id, updateData.parent_id);
+          const canBeParent = await Department.canBeParent(id, updateData.parent_id)
           if (!canBeParent) {
             return res.status(400).json({
               status: 'error',
               message: 'Cannot set parent: would create circular reference'
-            });
+            })
           }
         }
       }
 
       // If name is being updated, check if it already exists in the unit
       if (updateData.name) {
-        const targetUnitId = updateData.unit_id || department.unit_id;
+        const targetUnitId = updateData.unit_id || department.unit_id
         if (updateData.name !== department.name || updateData.unit_id) {
-          const nameExists = await Department.nameExistsInUnit(updateData.name, targetUnitId, id);
+          const nameExists = await Department.nameExistsInUnit(updateData.name, targetUnitId, id)
           if (nameExists) {
             return res.status(400).json({
               status: 'error',
               message: 'Department name already exists in this unit'
-            });
+            })
           }
         }
       }
 
-      const updated = await Department.update(id, updateData);
+      const updated = await Department.update(id, updateData)
 
       if (!updated) {
         return res.status(404).json({
           status: 'error',
           message: 'Department not found or no changes made'
-        });
+        })
       }
 
-      const updatedDepartment = await Department.findById(id);
+      const updatedDepartment = await Department.findById(id)
 
       res.status(200).json({
         status: 'success',
@@ -288,45 +288,45 @@ class DepartmentController {
         data: {
           department: updatedDepartment.toJSON()
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Delete department
-  static async deleteDepartment(req, res, next) {
+  static async deleteDepartment (req, res, next) {
     try {
-      const { id } = req.params;
+      const { id } = req.params
 
-      const deleted = await Department.delete(id);
+      const deleted = await Department.delete(id)
 
       if (!deleted) {
         return res.status(404).json({
           status: 'error',
           message: 'Department not found'
-        });
+        })
       }
 
       res.status(200).json({
         status: 'success',
         message: 'Department deleted successfully'
-      });
+      })
     } catch (error) {
       if (error.message.includes('Cannot delete')) {
         return res.status(400).json({
           status: 'error',
           message: error.message
-        });
+        })
       }
-      next(error);
+      next(error)
     }
   }
 
   // Get department statistics
-  static async getDepartmentStatistics(req, res, next) {
+  static async getDepartmentStatistics (req, res, next) {
     try {
-      const statistics = await Department.getStatistics();
+      const statistics = await Department.getStatistics()
 
       res.status(200).json({
         status: 'success',
@@ -334,17 +334,17 @@ class DepartmentController {
         data: {
           statistics
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get department hierarchy
-  static async getDepartmentHierarchy(req, res, next) {
+  static async getDepartmentHierarchy (req, res, next) {
     try {
-      const { unit_id } = req.query;
-      const hierarchy = await Department.getHierarchy(unit_id);
+      const { unit_id } = req.query
+      const hierarchy = await Department.getHierarchy(unit_id)
 
       res.status(200).json({
         status: 'success',
@@ -353,27 +353,27 @@ class DepartmentController {
           hierarchy,
           total_departments: hierarchy.length
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get child departments
-  static async getChildDepartments(req, res, next) {
+  static async getChildDepartments (req, res, next) {
     try {
-      const { id } = req.params;
-      
+      const { id } = req.params
+
       // Verify parent department exists
-      const parentDepartment = await Department.findById(id);
+      const parentDepartment = await Department.findById(id)
       if (!parentDepartment) {
         return res.status(404).json({
           status: 'error',
           message: 'Department not found'
-        });
+        })
       }
 
-      const children = await Department.getChildren(id);
+      const children = await Department.getChildren(id)
 
       res.status(200).json({
         status: 'success',
@@ -383,12 +383,11 @@ class DepartmentController {
           children: children.map(child => child.toJSON()),
           total_children: children.length
         }
-      });
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 }
 
-module.exports = DepartmentController;
-
+module.exports = DepartmentController

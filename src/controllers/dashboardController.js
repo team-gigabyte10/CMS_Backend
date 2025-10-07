@@ -1,13 +1,11 @@
-const { pool } = require('../config/database');
-const User = require('../models/User');
-const Conversation = require('../models/Conversation');
+const { pool } = require('../config/database')
 
 class DashboardController {
   // Get comprehensive dashboard statistics
-  static async getDashboardStats(req, res, next) {
+  static async getDashboardStats (req, res, next) {
     try {
-      const userId = req.user.id;
-      const userRole = req.user.role;
+      const userId = req.user.id
+      const userRole = req.user.role
 
       // Get basic statistics
       const [
@@ -26,7 +24,7 @@ class DashboardController {
         DashboardController.getRecentActivity(userId, userRole),
         DashboardController.getConversationStats(userId, userRole),
         DashboardController.getUserStats(userId, userRole)
-      ]);
+      ])
 
       res.status(200).json({
         status: 'success',
@@ -40,17 +38,16 @@ class DashboardController {
           userStats,
           timestamp: new Date().toISOString()
         }
-      });
-
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get total contacts count
-  static async getTotalContacts(userId, userRole) {
+  static async getTotalContacts (userId, userRole) {
     try {
-      let query, params;
+      let query, params
 
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         // Admins can see all contacts
@@ -62,8 +59,8 @@ class DashboardController {
             COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY) THEN 1 END) as new_contacts_30d,
             COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN 1 END) as new_contacts_7d
           FROM users
-        `;
-        params = [];
+        `
+        params = []
       } else {
         // Regular users see contacts they can communicate with
         query = `
@@ -75,21 +72,21 @@ class DashboardController {
             COUNT(DISTINCT CASE WHEN u.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY) THEN u.id END) as new_contacts_7d
           FROM users u
           WHERE u.id != ? AND u.is_active = 1
-        `;
-        params = [userId];
+        `
+        params = [userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows[0];
+      const [rows] = await pool.execute(query, params)
+      return rows[0]
     } catch (error) {
-      throw new Error(`Error getting total contacts: ${error.message}`);
+      throw new Error(`Error getting total contacts: ${error.message}`)
     }
   }
 
   // Get active conversations
-  static async getActiveConversations(userId, userRole) {
+  static async getActiveConversations (userId, userRole) {
     try {
-      let query, params;
+      let query, params
 
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         // Admins can see all conversations
@@ -101,8 +98,8 @@ class DashboardController {
             COUNT(DISTINCT CASE WHEN c.type = 'direct' THEN c.id END) as direct_conversations,
             COUNT(DISTINCT CASE WHEN c.type = 'group' THEN c.id END) as group_conversations
           FROM conversations c
-        `;
-        params = [];
+        `
+        params = []
       } else {
         // Regular users see their conversations
         query = `
@@ -115,21 +112,21 @@ class DashboardController {
           FROM conversations c
           JOIN conversation_participants cp ON c.id = cp.conversation_id
           WHERE cp.user_id = ?
-        `;
-        params = [userId];
+        `
+        params = [userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows[0];
+      const [rows] = await pool.execute(query, params)
+      return rows[0]
     } catch (error) {
-      throw new Error(`Error getting active conversations: ${error.message}`);
+      throw new Error(`Error getting active conversations: ${error.message}`)
     }
   }
 
   // Get online contacts
-  static async getOnlineContacts(userId, userRole) {
+  static async getOnlineContacts (userId, userRole) {
     try {
-      let query, params;
+      let query, params
 
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         // Admins can see all online users
@@ -143,8 +140,8 @@ class DashboardController {
             COUNT(CASE WHEN last_seen >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 END) as active_24h
           FROM users
           WHERE is_active = 1
-        `;
-        params = [];
+        `
+        params = []
       } else {
         // Regular users see online contacts they can communicate with
         query = `
@@ -157,21 +154,21 @@ class DashboardController {
             COUNT(CASE WHEN u.last_seen >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 END) as active_24h
           FROM users u
           WHERE u.id != ? AND u.is_active = 1
-        `;
-        params = [userId];
+        `
+        params = [userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows[0];
+      const [rows] = await pool.execute(query, params)
+      return rows[0]
     } catch (error) {
-      throw new Error(`Error getting online contacts: ${error.message}`);
+      throw new Error(`Error getting online contacts: ${error.message}`)
     }
   }
 
   // Get security alerts
-  static async getSecurityAlerts(userId, userRole) {
+  static async getSecurityAlerts (userId, userRole) {
     try {
-      let query, params;
+      let query, params
 
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         // Admins see all security-related activities
@@ -185,8 +182,8 @@ class DashboardController {
             COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 1 HOUR) THEN 1 END) as total_activities_1h,
             COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 END) as total_activities_24h
           FROM audit_logs
-        `;
-        params = [];
+        `
+        params = []
       } else {
         // Regular users see their own security activities
         query = `
@@ -200,21 +197,21 @@ class DashboardController {
             COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 END) as total_activities_24h
           FROM audit_logs
           WHERE user_id = ?
-        `;
-        params = [userId];
+        `
+        params = [userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows[0];
+      const [rows] = await pool.execute(query, params)
+      return rows[0]
     } catch (error) {
-      throw new Error(`Error getting security alerts: ${error.message}`);
+      throw new Error(`Error getting security alerts: ${error.message}`)
     }
   }
 
   // Get recent activity
-  static async getRecentActivity(userId, userRole) {
+  static async getRecentActivity (userId, userRole) {
     try {
-      let query, params;
+      let query, params
 
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         // Admins see all recent activities
@@ -233,8 +230,8 @@ class DashboardController {
           WHERE al.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
           ORDER BY al.created_at DESC
           LIMIT 10
-        `;
-        params = [];
+        `
+        params = []
       } else {
         // Regular users see their own recent activities
         query = `
@@ -252,21 +249,21 @@ class DashboardController {
           WHERE al.user_id = ? AND al.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
           ORDER BY al.created_at DESC
           LIMIT 10
-        `;
-        params = [userId];
+        `
+        params = [userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows;
+      const [rows] = await pool.execute(query, params)
+      return rows
     } catch (error) {
-      throw new Error(`Error getting recent activity: ${error.message}`);
+      throw new Error(`Error getting recent activity: ${error.message}`)
     }
   }
 
   // Get conversation statistics
-  static async getConversationStats(userId, userRole) {
+  static async getConversationStats (userId, userRole) {
     try {
-      let query, params;
+      let query, params
 
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         // Admins see all conversation stats
@@ -279,8 +276,8 @@ class DashboardController {
             COUNT(CASE WHEN m.type = 'system' THEN 1 END) as system_messages_24h
           FROM messages m
           WHERE m.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-        `;
-        params = [];
+        `
+        params = []
       } else {
         // Regular users see their conversation stats
         query = `
@@ -293,21 +290,21 @@ class DashboardController {
           FROM messages m
           JOIN conversation_participants cp ON m.conversation_id = cp.conversation_id
           WHERE cp.user_id = ? AND m.created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
-        `;
-        params = [userId];
+        `
+        params = [userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows[0];
+      const [rows] = await pool.execute(query, params)
+      return rows[0]
     } catch (error) {
-      throw new Error(`Error getting conversation stats: ${error.message}`);
+      throw new Error(`Error getting conversation stats: ${error.message}`)
     }
   }
 
   // Get user statistics
-  static async getUserStats(userId, userRole) {
+  static async getUserStats (userId, userRole) {
     try {
-      let query, params;
+      let query, params
 
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         // Admins see all user stats
@@ -324,8 +321,8 @@ class DashboardController {
           FROM users u
           LEFT JOIN units un ON u.unit_id = un.id
           WHERE u.is_active = 1
-        `;
-        params = [];
+        `
+        params = []
       } else {
         // Regular users see limited stats
         query = `
@@ -341,23 +338,23 @@ class DashboardController {
           FROM users u
           LEFT JOIN units un ON u.unit_id = un.id
           WHERE u.is_active = 1 AND u.id != ?
-        `;
-        params = [userId];
+        `
+        params = [userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows[0];
+      const [rows] = await pool.execute(query, params)
+      return rows[0]
     } catch (error) {
-      throw new Error(`Error getting user stats: ${error.message}`);
+      throw new Error(`Error getting user stats: ${error.message}`)
     }
   }
 
   // Get detailed dashboard data for charts and analytics
-  static async getDashboardAnalytics(req, res, next) {
+  static async getDashboardAnalytics (req, res, next) {
     try {
-      const userId = req.user.id;
-      const userRole = req.user.role;
-      const { period = '7d' } = req.query; // 7d, 30d, 90d
+      const userId = req.user.id
+      const userRole = req.user.role
+      const { period = '7d' } = req.query // 7d, 30d, 90d
 
       const [
         userActivityChart,
@@ -369,7 +366,7 @@ class DashboardController {
         DashboardController.getConversationChart(period, userRole, userId),
         DashboardController.getMessageChart(period, userRole, userId),
         DashboardController.getSecurityChart(period, userRole, userId)
-      ]);
+      ])
 
       res.status(200).json({
         status: 'success',
@@ -381,20 +378,19 @@ class DashboardController {
           period,
           timestamp: new Date().toISOString()
         }
-      });
-
+      })
     } catch (error) {
-      next(error);
+      next(error)
     }
   }
 
   // Get user activity chart data
-  static async getUserActivityChart(period, userRole, userId = null) {
+  static async getUserActivityChart (period, userRole, userId = null) {
     try {
-      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
-      
-      let query, params;
-      
+      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
+
+      let query, params
+
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         query = `
           SELECT 
@@ -405,8 +401,8 @@ class DashboardController {
           WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
           GROUP BY DATE(created_at)
           ORDER BY date DESC
-        `;
-        params = [days];
+        `
+        params = [days]
       } else {
         query = `
           SELECT 
@@ -417,24 +413,24 @@ class DashboardController {
           WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) AND id != ?
           GROUP BY DATE(created_at)
           ORDER BY date DESC
-        `;
-        params = [days, userId];
+        `
+        params = [days, userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows;
+      const [rows] = await pool.execute(query, params)
+      return rows
     } catch (error) {
-      throw new Error(`Error getting user activity chart: ${error.message}`);
+      throw new Error(`Error getting user activity chart: ${error.message}`)
     }
   }
 
   // Get conversation chart data
-  static async getConversationChart(period, userRole, userId = null) {
+  static async getConversationChart (period, userRole, userId = null) {
     try {
-      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
-      
-      let query, params;
-      
+      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
+
+      let query, params
+
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         query = `
           SELECT 
@@ -446,8 +442,8 @@ class DashboardController {
           WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
           GROUP BY DATE(created_at)
           ORDER BY date DESC
-        `;
-        params = [days];
+        `
+        params = [days]
       } else {
         query = `
           SELECT 
@@ -460,24 +456,24 @@ class DashboardController {
           WHERE c.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) AND cp.user_id = ?
           GROUP BY DATE(c.created_at)
           ORDER BY date DESC
-        `;
-        params = [days, userId];
+        `
+        params = [days, userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows;
+      const [rows] = await pool.execute(query, params)
+      return rows
     } catch (error) {
-      throw new Error(`Error getting conversation chart: ${error.message}`);
+      throw new Error(`Error getting conversation chart: ${error.message}`)
     }
   }
 
   // Get message chart data
-  static async getMessageChart(period, userRole, userId = null) {
+  static async getMessageChart (period, userRole, userId = null) {
     try {
-      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
-      
-      let query, params;
-      
+      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
+
+      let query, params
+
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         query = `
           SELECT 
@@ -490,8 +486,8 @@ class DashboardController {
           WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
           GROUP BY DATE(created_at)
           ORDER BY date DESC
-        `;
-        params = [days];
+        `
+        params = [days]
       } else {
         query = `
           SELECT 
@@ -505,24 +501,24 @@ class DashboardController {
           WHERE m.created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) AND cp.user_id = ?
           GROUP BY DATE(m.created_at)
           ORDER BY date DESC
-        `;
-        params = [days, userId];
+        `
+        params = [days, userId]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows;
+      const [rows] = await pool.execute(query, params)
+      return rows
     } catch (error) {
-      throw new Error(`Error getting message chart: ${error.message}`);
+      throw new Error(`Error getting message chart: ${error.message}`)
     }
   }
 
   // Get security chart data
-  static async getSecurityChart(period, userRole, userId = null) {
+  static async getSecurityChart (period, userRole, userId = null) {
     try {
-      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90;
-      
-      let query, params;
-      
+      const days = period === '7d' ? 7 : period === '30d' ? 30 : 90
+
+      let query, params
+
       if (userRole === 'Super_admin' || userRole === 'Admin') {
         query = `
           SELECT 
@@ -535,8 +531,8 @@ class DashboardController {
           WHERE created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
           GROUP BY DATE(created_at)
           ORDER BY date DESC
-        `;
-        params = [days];
+        `
+        params = [days]
       } else {
         query = `
           SELECT 
@@ -549,16 +545,16 @@ class DashboardController {
           WHERE user_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL ? DAY)
           GROUP BY DATE(created_at)
           ORDER BY date DESC
-        `;
-        params = [userId, days];
+        `
+        params = [userId, days]
       }
 
-      const [rows] = await pool.execute(query, params);
-      return rows;
+      const [rows] = await pool.execute(query, params)
+      return rows
     } catch (error) {
-      throw new Error(`Error getting security chart: ${error.message}`);
+      throw new Error(`Error getting security chart: ${error.message}`)
     }
   }
 }
 
-module.exports = DashboardController;
+module.exports = DashboardController
