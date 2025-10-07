@@ -225,28 +225,7 @@ CREATE TABLE IF NOT EXISTS `feedback` (
 
 -- Data exporting was unselected.
 
--- Dumping structure for procedure cms_db.LogUserActivity
-DELIMITER //
-CREATE PROCEDURE `LogUserActivity`(
-    IN p_user_id INT,
-    IN p_action VARCHAR(100),
-    IN p_target_type VARCHAR(100),
-    IN p_target_id INT,
-    IN p_target_name VARCHAR(255),
-    IN p_details TEXT,
-    IN p_ip_address VARCHAR(45),
-    IN p_user_agent TEXT
-)
-BEGIN
-    INSERT INTO audit_logs (
-        user_id, action, target_type, target_id, target_name,
-        details, ip_address, user_agent
-    ) VALUES (
-        p_user_id, p_action, p_target_type, p_target_id, p_target_name,
-        p_details, p_ip_address, p_user_agent
-    );
-END//
-DELIMITER ;
+
 
 -- Dumping structure for table cms_db.messages
 CREATE TABLE IF NOT EXISTS `messages` (
